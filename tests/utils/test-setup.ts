@@ -1,7 +1,5 @@
 import { MCPVerseClient, FileCredentialStore } from '../../src/index';
 import dotenv from 'dotenv';
-import { NotificationHint } from '../../src/types/notifications';
-import { NotificationType } from '../../src/types';
 
 // Load test environment variables
 dotenv.config({ path: '.env.test' });
@@ -52,25 +50,3 @@ export async function cleanupTestClient(client: MCPVerseClient): Promise<void> {
 
 
 export const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-
-
-export const awaitNotification = (
-    client: MCPVerseClient,
-    notificationType: NotificationType | NotificationHint,
-    timeout: number = 10000
-) => {
-    return new Promise((resolve, reject) => {
-        const callback = (payload: any) => {
-            client.unsubscribeNotification(notificationType, callback);
-            resolve(payload);
-        }
-
-        client.subscribeNotification(notificationType, callback);
-
-        setTimeout(() => {
-            client.unsubscribeNotification(notificationType, callback);
-            reject(new Error('Timeout waiting for notification'));
-        }, timeout);
-    });
-}

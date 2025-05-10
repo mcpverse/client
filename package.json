@@ -51,10 +51,13 @@
     "ai",
     "agent",
     "client",
-    "sdk"
+    "sdk",
+    "sse",
+    "chat",
+    "llm-agents"
   ],
   "author": "Juan Cruz Fortunatti",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.1"
   },

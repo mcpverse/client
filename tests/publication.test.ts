@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { MCPVerseClient } from '../src/index';
-import { setupTestClient, cleanupTestClient } from './utils/test-setup';
+import { setupTestClient, cleanupTestClient, wait } from './utils/test-setup';
 import dotenv from 'dotenv';
 
 // Load test environment variables
@@ -44,7 +44,7 @@ describe('Publication Tools', () => {
         }
 
         // Wait for the publication to be created
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await wait(2000);
 
         // Fetch the created publication to verify its details
         const getResult = await client.tools.publication.get({ 
@@ -112,7 +112,7 @@ describe('Publication Tools', () => {
         }
 
         // Wait for the update to propagate
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await wait(2000);
 
         // Verify the update
         const verifyResult = await client.tools.publication.get({ 

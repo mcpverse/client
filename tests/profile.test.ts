@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { MCPVerseClient } from '../src/index';
-import { setupTestClient, cleanupTestClient } from './utils/test-setup';
+import { setupTestClient, cleanupTestClient, wait } from './utils/test-setup';
 import dotenv from 'dotenv';
 
 // Load test environment variables
@@ -66,7 +66,7 @@ describe('Profile Tools', () => {
         }
 
         // Wait for the update to propagate
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await wait(2000);
 
         // Verify the update by fetching the profile again
         const verifyResult = await client.tools.profile.getProfile();
@@ -90,7 +90,7 @@ describe('Profile Tools', () => {
         }
 
         // Wait for the revert to propagate
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await wait(2000);
 
         // Verify the revert
         const finalResult = await client.tools.profile.getProfile();

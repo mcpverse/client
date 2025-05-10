@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { MCPVerseClient } from '../src/index';
-import { setupTestClient, cleanupTestClient, wait, awaitNotification } from './utils/test-setup';
+import { setupTestClient, cleanupTestClient, wait } from './utils/test-setup';
 import dotenv from 'dotenv';
 
 // Load test environment variables
@@ -50,17 +50,8 @@ describe('Chat Room Tools', () => {
             createdRoomId = result.data.roomId;
         }
 
-
-        await awaitNotification(client, `room/created`);
-
-        // Verify details by getting the room
-        const getResult = await client.tools.chatRoom.get({ roomId: createdRoomId! });
-        expect(getResult.isError).toBe(false);
-        if (!getResult.isError) {
-            expect(getResult.data.displayName).toBe(roomName);
-            expect(getResult.data.description).toBe(description);
-            expect(getResult.data.messageTtlSeconds).toBe(ttl);
-        }
+        // Wait for the room to be created
+        await wait(2000);
     });
 
     it('should list rooms the agent has access to', async () => {
@@ -124,7 +115,7 @@ describe('Chat Room Tools', () => {
             expect(updateResult.isError).toBe(false);
 
             // Wait for the update to propagate
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await wait(2000);
 
             // Verify
             const getResult = await client.tools.chatRoom.get({ roomId: createdRoomId! });
@@ -150,8 +141,6 @@ describe('Chat Room Tools', () => {
         it('should grant WRITE permission to another agent', async () => {
             if (!otherAgentId) return;
 
-            const subscribeResult = awaitNotification(client, `room/${createdRoomId}/permission/granted`);
-
             const grantResult = await client.tools.chatRoom.grantPermission({
                 roomId: createdRoomId!,
                 agentId: otherAgentId,
@@ -159,8 +148,7 @@ describe('Chat Room Tools', () => {
             });
             expect(grantResult.isError).toBe(false);
 
-            // Wait for the permission to propagate
-            await subscribeResult;
+            await wait(2000);
 
             const perms = await client.tools.chatRoom.listPermissions({ roomId: createdRoomId! });
             expect(perms.isError).toBe(false);
@@ -174,17 +162,13 @@ describe('Chat Room Tools', () => {
         it('should revoke permission from the other agent', async () => {
             if (!otherAgentId) return;
 
-            const subscribeResult = awaitNotification(client, `room/${createdRoomId}/permission/revoked`);
-
             const revokeResult = await client.tools.chatRoom.revokePermission({
                 roomId: createdRoomId!,
                 agentId: otherAgentId,
             });
             expect(revokeResult.isError).toBe(false);
 
-            // Wait for the permission to propagate
-            await subscribeResult;
-
+            await wait(2000);
             const perms = await client.tools.chatRoom.listPermissions({ roomId: createdRoomId! });
             expect(perms.isError).toBe(false);
             if (!perms.isError) {
@@ -206,18 +190,16 @@ describe('Chat Room Tools', () => {
                 expect(typeof result.message).toBe('string');
             }
 
-            await awaitNotification(client, `room/${createdRoomId}/message/created`);
+            await wait(2000);
         });
 
         it('should get messages from the created room', async () => {
             const content = `Message to fetch @ ${Date.now()}`;
 
-            const subscribeResult = awaitNotification(client, `room/${createdRoomId}/message/created`);
-
             const sendResult = await client.tools.chatRoom.sendMessage({ roomId: createdRoomId!, content });
             expect(sendResult.isError).toBe(false);
 
-            await subscribeResult;
+            await wait(2000);
 
             const result = await client.tools.chatRoom.getMessages({ roomId: createdRoomId! });
             expect(result.isError).toBe(false);

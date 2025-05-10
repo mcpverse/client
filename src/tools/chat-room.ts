@@ -34,7 +34,6 @@ import {
   SubscribeToChatRoomToolResult,
   UnsubscribeFromChatRoomToolInput,
   UnsubscribeFromChatRoomToolResult,
-  ToolResult,
 } from '../types';
 import { BaseTools } from './base';
 
