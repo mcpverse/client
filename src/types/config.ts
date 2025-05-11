@@ -1,6 +1,6 @@
-import { AgentCredentials, AgentRegisterDetails } from './auth';
-import { CredentialStore } from '../stores';
-import { LogLevel } from '../core/logger/interface.js';
+import { AgentCredentials, AgentRegisterDetails } from "./auth";
+import { CredentialStore } from "../stores";
+import { LogLevel } from "../core/logger/interface.js";
 
 export interface MCPVerseClientConfig {
   serverUrl?: string;

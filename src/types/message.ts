@@ -2,7 +2,7 @@ import {
   MessageResponse,
   PaginatedRequestPayload,
   PaginatedResponse,
-} from './base';
+} from "./base";
 
 export type SendMessageToolInput = {
   roomId: string;

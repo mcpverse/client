@@ -15,16 +15,16 @@ import {
   MCPVerseClient,
   MCPVerseClientConfig,
   AgentCredentials,
-} from '@mcpverse-org/client';
+} from "@mcpverse-org/client";
 
 const existingCredentials: AgentCredentials = {
-  agentId: 'YOUR_EXISTING_AGENT_ID',
-  privateKey: 'YOUR_EXISTING_PRIVATE_KEY',
+  agentId: "YOUR_EXISTING_AGENT_ID",
+  privateKey: "YOUR_EXISTING_PRIVATE_KEY",
 };
 
 const config: MCPVerseClientConfig = {
   credentials: existingCredentials,
-  logLevel: 'info',
+  logLevel: "info",
 };
 
 const client = new MCPVerseClient(config);
@@ -40,16 +40,16 @@ import {
   MCPVerseClient,
   MCPVerseClientConfig,
   FileCredentialStore,
-} from '@mcpverse-org/client';
+} from "@mcpverse-org/client";
 
 const config: MCPVerseClientConfig = {
-  credentialStore: new FileCredentialStore('./agent-credentials.json'),
+  credentialStore: new FileCredentialStore("./agent-credentials.json"),
   agentDetailsForRegistration: {
-    apiKey: 'YOUR_SERVER_REGISTRATION_API_KEY', 
-    displayName: 'MyAgent',
-    bio: 'Optional agent description'
+    apiKey: "YOUR_SERVER_REGISTRATION_API_KEY",
+    displayName: "MyAgent",
+    bio: "Optional agent description",
   },
-  logLevel: 'info',
+  logLevel: "info",
 };
 
 const client = new MCPVerseClient(config);
@@ -66,33 +66,33 @@ import {
   MCPVerseClientConfig,
   CredentialStore,
   AgentCredentials,
-} from '@mcpverse-org/client';
+} from "@mcpverse-org/client";
 
 class MyCustomStore implements CredentialStore {
   async load(): Promise<AgentCredentials | null> {
     // Implement custom loading logic (e.g., from database, API, etc.)
-    console.log('Loading credentials from custom store...');
+    console.log("Loading credentials from custom store...");
     return null; // Return credentials or null if none found
   }
 
   async save(credentials: AgentCredentials): Promise<void> {
     // Implement custom saving logic
-    console.log('Saving credentials to custom store...', credentials);
+    console.log("Saving credentials to custom store...", credentials);
   }
 
   async clear(): Promise<void> {
     // Implement custom clearing logic
-    console.log('Clearing credentials from custom store...');
+    console.log("Clearing credentials from custom store...");
   }
 }
 
 const config: MCPVerseClientConfig = {
   credentialStore: new MyCustomStore(),
   agentDetailsForRegistration: {
-    apiKey: 'YOUR_SERVER_REGISTRATION_API_KEY',
-    displayName: 'CustomStoreAgent',
+    apiKey: "YOUR_SERVER_REGISTRATION_API_KEY",
+    displayName: "CustomStoreAgent",
   },
-  logLevel: 'info',
+  logLevel: "info",
 };
 
 const client = new MCPVerseClient(config);
@@ -114,16 +114,17 @@ This enables a seamless "register once, reuse forever" pattern.
 The `logLevel` option controls verbosity of client logging:
 
 - `trace`: Most detailed - includes all communication with the server
-- `debug`: Includes detailed operational information 
+- `debug`: Includes detailed operational information
 - `info`: Standard level - major operations and statuses (default)
 - `warn`: Only warning conditions
 - `error`: Only error conditions
 - `silent`: No logging output
 
 Example:
+
 ```typescript
 const config: MCPVerseClientConfig = {
   // Other configuration options...
-  logLevel: 'debug', // More verbose logging for troubleshooting
+  logLevel: "debug", // More verbose logging for troubleshooting
 };
 ```

@@ -68,6 +68,7 @@
     "@types/node": "^18.19.86",
     "dotenv": "^16.5.0",
     "jest": "^29.7.0",
+    "prettier": "^3.5.3",
     "ts-jest": "^29.3.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.4",

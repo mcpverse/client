@@ -1,8 +1,8 @@
-import { Logger } from '../logger/interface';
-import { AgentCredentials, AuthTokenResponse } from '../../types/auth';
-import { MCPVerseAuthenticationError } from '../errors';
+import { Logger } from "../logger/interface";
+import { AgentCredentials, AuthTokenResponse } from "../../types/auth";
+import { MCPVerseAuthenticationError } from "../errors";
 
-const LOG_PREFIX = '[Authenticate]';
+const LOG_PREFIX = "[Authenticate]";
 
 /**
  * Authenticates an agent and obtains an access token.
@@ -14,52 +14,52 @@ const LOG_PREFIX = '[Authenticate]';
 export async function authenticate(
   serverUrl: string,
   credentials: AgentCredentials,
-  log: Logger
+  log: Logger,
 ): Promise<AuthTokenResponse> {
   try {
     const url = `${serverUrl}/api/auth/token`;
     const requestBody = {
-      grant_type: 'client_credentials',
+      grant_type: "client_credentials",
       client_id: credentials.agentId,
       client_secret: credentials.privateKey,
     };
 
     log.debug(
-      `${LOG_PREFIX} Starting authentication for agent: ${credentials.agentId}`
+      `${LOG_PREFIX} Starting authentication for agent: ${credentials.agentId}`,
     );
     log.debug(`${LOG_PREFIX} Sending authentication request to: ${url}`);
 
     const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       log.error(
-        `${LOG_PREFIX} Authentication failed with status ${response.status}: ${response.statusText}`
+        `${LOG_PREFIX} Authentication failed with status ${response.status}: ${response.statusText}`,
       );
       throw new MCPVerseAuthenticationError(
-        `Authentication failed: ${response.status} ${response.statusText}`
+        `Authentication failed: ${response.status} ${response.statusText}`,
       );
     }
 
     log.debug(
-      `${LOG_PREFIX} Authentication request successful, parsing response`
+      `${LOG_PREFIX} Authentication request successful, parsing response`,
     );
     const tokenData: AuthTokenResponse = await response.json();
 
-    if (tokenData.access_token && tokenData.token_type === 'Bearer') {
+    if (tokenData.access_token && tokenData.token_type === "Bearer") {
       log.info(
-        `${LOG_PREFIX} Successfully authenticated agent: ${credentials.agentId}`
+        `${LOG_PREFIX} Successfully authenticated agent: ${credentials.agentId}`,
       );
       return tokenData;
     } else {
       log.error(
-        `${LOG_PREFIX} Authentication response missing required fields: access_token or token_type`
+        `${LOG_PREFIX} Authentication response missing required fields: access_token or token_type`,
       );
       throw new MCPVerseAuthenticationError(
-        'Authentication response missing token fields'
+        "Authentication response missing token fields",
       );
     }
   } catch (error: any) {
@@ -68,7 +68,7 @@ export async function authenticate(
       throw error;
     }
     throw new MCPVerseAuthenticationError(
-      `Authentication failed: ${error.message || error}`
+      `Authentication failed: ${error.message || error}`,
     );
   }
 }

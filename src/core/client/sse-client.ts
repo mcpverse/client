@@ -1,16 +1,16 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import {
   CallToolRequest,
   CallToolResult,
-} from '@modelcontextprotocol/sdk/types.js';
-import { Logger } from '../logger/interface';
-import { notificationSchema } from './notifications';
-import { MCPVerseUnknownError, toolErrorHandler } from '../errors';
-import { MCPVerseAuthenticationError } from '../errors';
-import { CLIENT_NAME, CLIENT_VERSION } from '../../constants';
+} from "@modelcontextprotocol/sdk/types.js";
+import { Logger } from "../logger/interface";
+import { notificationSchema } from "./notifications";
+import { MCPVerseUnknownError, toolErrorHandler } from "../errors";
+import { MCPVerseAuthenticationError } from "../errors";
+import { CLIENT_NAME, CLIENT_VERSION } from "../../constants";
 
-const LOG_PREFIX = '[SSEClient]';
+const LOG_PREFIX = "[SSEClient]";
 
 /**
  * SSEClient manages the Server-Sent Events (SSE) connection to the MCPVerse server.
@@ -38,7 +38,7 @@ export class SSEClient {
       },
       {
         capabilities: {},
-      }
+      },
     );
 
     this.client.onclose = () => {
@@ -62,7 +62,7 @@ export class SSEClient {
     if (!accessToken) {
       this.log.error(`${LOG_PREFIX} Cannot connect without access token.`);
       throw new MCPVerseAuthenticationError(
-        'SSE connection: Cannot connect without access token.'
+        "SSE connection: Cannot connect without access token.",
       );
     }
 
@@ -72,7 +72,7 @@ export class SSEClient {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    this.transport = new SSEClientTransport(new URL(this.serverUrl + '/sse'), {
+    this.transport = new SSEClientTransport(new URL(this.serverUrl + "/sse"), {
       eventSourceInit: {
         fetch: (url, init) =>
           fetch(url, { ...init, headers: { ...init?.headers, ...headers } }),
@@ -122,13 +122,13 @@ export class SSEClient {
    * @returns A promise that resolves to the result of the tool call.
    * @throws {MCPVerseUnknownError} If the client is not connected when the call is attempted.
    */
-  async callTool(params: CallToolRequest['params']): Promise<CallToolResult> {
+  async callTool(params: CallToolRequest["params"]): Promise<CallToolResult> {
     const timeStart = performance.now();
 
     if (!this.isConnected) {
       this.log.error(`${LOG_PREFIX} callTool attempted while not connected.`);
       throw new MCPVerseUnknownError(
-        'SSE callTool attempted while not connected.'
+        "SSE callTool attempted while not connected.",
       );
     }
 
@@ -143,23 +143,23 @@ export class SSEClient {
       const result: CallToolResult = await this.client.callTool(
         params,
         undefined,
-        { timeout: 10_000 }
+        { timeout: 10_000 },
       );
       if (result.isError) {
         this.log.warn(
           `${LOG_PREFIX} Tool call '${params.name}' returned error:`,
-          result.error
+          result.error,
         );
       }
       const timeEnd = performance.now();
       this.log.debug(
-        `${LOG_PREFIX} Tool call '${params.name}' took ${timeEnd - timeStart} ms`
+        `${LOG_PREFIX} Tool call '${params.name}' took ${timeEnd - timeStart} ms`,
       );
       return result;
     } catch (error) {
       this.log.error(
         `${LOG_PREFIX} Tool call '${params.name}' took ${performance.now() - timeStart} ms and failed with error:`,
-        error
+        error,
       );
       return toolErrorHandler(error, this.log, params);
     }
@@ -190,7 +190,7 @@ export class SSEClient {
       // Each of those schemas has a `type` and a `data` field.
       cb(
         notification.params.type as string, // `type` is a string literal or a string matching a regex.
-        notification.params.data as T // `data` is the specific data object for that notification type.
+        notification.params.data as T, // `data` is the specific data object for that notification type.
       );
     });
   }
@@ -199,6 +199,6 @@ export class SSEClient {
    * Removes the notification handler for 'notifications/message' method types.
    */
   removeNotificationHandler() {
-    this.client.removeNotificationHandler('notifications/message');
+    this.client.removeNotificationHandler("notifications/message");
   }
 }

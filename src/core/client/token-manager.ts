@@ -1,8 +1,8 @@
-import { AuthTokenResponse } from '../../types/auth.js';
-import { Logger } from '../logger/interface.js';
-import { TOKEN_EXPIRY_BUFFER_MS } from '../../constants.js';
+import { AuthTokenResponse } from "../../types/auth.js";
+import { Logger } from "../logger/interface.js";
+import { TOKEN_EXPIRY_BUFFER_MS } from "../../constants.js";
 
-const LOG_PREFIX = '[TokenManager]';
+const LOG_PREFIX = "[TokenManager]";
 
 /**
  * Manages the lifecycle of an authentication token, including fetching,
@@ -19,7 +19,7 @@ export class TokenManager {
    */
   constructor(
     private fetchFn: () => Promise<AuthTokenResponse>,
-    private log: Logger
+    private log: Logger,
   ) {}
 
   private get expiresAt() {
@@ -40,12 +40,12 @@ export class TokenManager {
       await this.refresh();
     } else if (Date.now() >= this.expiresAt) {
       this.log.debug(
-        `${LOG_PREFIX} Token expired or expiring soon (expires at ${new Date(this.expiresAt).toISOString()}), refreshing...`
+        `${LOG_PREFIX} Token expired or expiring soon (expires at ${new Date(this.expiresAt).toISOString()}), refreshing...`,
       );
       await this.refresh();
     } else {
       this.log.debug(
-        `${LOG_PREFIX} Using existing token, expires at ${new Date(this.expiresAt).toISOString()}`
+        `${LOG_PREFIX} Using existing token, expires at ${new Date(this.expiresAt).toISOString()}`,
       );
     }
     return this.token!.access_token;
@@ -61,14 +61,14 @@ export class TokenManager {
       const newToken = await this.fetchFn();
       if (!newToken) {
         this.log.error(
-          `${LOG_PREFIX} Token refresh failed: No token received from fetch function`
+          `${LOG_PREFIX} Token refresh failed: No token received from fetch function`,
         );
-        throw new Error('Unable to refresh token');
+        throw new Error("Unable to refresh token");
       }
       this.token = newToken;
       this.tokenIssuedAt = Date.now(); // Store the issuance time
       this.log.info(
-        `${LOG_PREFIX} Token refreshed successfully, expires in ${newToken.expires_in} seconds`
+        `${LOG_PREFIX} Token refreshed successfully, expires in ${newToken.expires_in} seconds`,
       );
     } catch (error) {
       this.log.error(`${LOG_PREFIX} Token refresh failed:`, error);

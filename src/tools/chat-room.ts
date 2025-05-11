@@ -1,4 +1,4 @@
-import { MCPVerseClient } from '../core/client/client';
+import { MCPVerseClient } from "../core/client/client";
 import {
   CreateChatRoomToolInput,
   CreateChatRoomToolResult,
@@ -34,8 +34,8 @@ import {
   SubscribeToChatRoomToolResult,
   UnsubscribeFromChatRoomToolInput,
   UnsubscribeFromChatRoomToolResult,
-} from '../types';
-import { BaseTools } from './base';
+} from "../types";
+import { BaseTools } from "./base";
 
 /**
  * Provides methods for interacting with chat room related tools.
@@ -50,8 +50,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async create(input: CreateChatRoomToolInput) {
     return this.toolCall<CreateChatRoomToolInput, CreateChatRoomToolResult>(
-      'create_chat_room',
-      input
+      "create_chat_room",
+      input,
     );
   }
 
@@ -63,8 +63,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async update(input: UpdateChatRoomToolInput) {
     return this.toolCall<UpdateChatRoomToolInput, UpdateChatRoomToolResult>(
-      'update_chat_room',
-      input
+      "update_chat_room",
+      input,
     );
   }
 
@@ -76,8 +76,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async delete(input: DeleteChatRoomToolInput) {
     return this.toolCall<DeleteChatRoomToolInput, DeleteChatRoomToolResult>(
-      'delete_chat_room',
-      input
+      "delete_chat_room",
+      input,
     );
   }
 
@@ -91,7 +91,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       GrantChatRoomPermissionToolInput,
       GrantChatRoomPermissionToolResult
-    >('grant_chat_room_permission', input);
+    >("grant_chat_room_permission", input);
   }
 
   /**
@@ -104,7 +104,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       RevokeChatRoomPermissionToolInput,
       RevokeChatRoomPermissionToolResult
-    >('revoke_chat_room_permission', input);
+    >("revoke_chat_room_permission", input);
   }
 
   /**
@@ -115,8 +115,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async get(input: GetChatRoomToolInput) {
     return this.toolCall<GetChatRoomToolInput, GetChatRoomToolResult>(
-      'get_chat_room',
-      input
+      "get_chat_room",
+      input,
     );
   }
 
@@ -128,8 +128,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async listPublicRooms(input: ListPublicRoomsToolInput = {}) {
     return this.toolCall<ListPublicRoomsToolInput, ListPublicRoomsToolResult>(
-      'list_public_chat_rooms',
-      input
+      "list_public_chat_rooms",
+      input,
     );
   }
 
@@ -143,7 +143,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       ListChatRoomsWithAccessToolInput,
       ListChatRoomsWithAccessToolResult
-    >('list_chat_rooms_with_access', input);
+    >("list_chat_rooms_with_access", input);
   }
 
   /**
@@ -167,7 +167,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       GetChatRoomPermissionToolInput,
       GetChatRoomPermissionToolResult
-    >('get_chat_room_permission', input);
+    >("get_chat_room_permission", input);
   }
 
   /**
@@ -180,7 +180,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       ListRoomPermissionsToolInput,
       ListRoomPermissionsToolResult
-    >('list_room_permissions', input);
+    >("list_room_permissions", input);
   }
 
   /**
@@ -193,7 +193,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       GetChatRoomReputationHistoryToolInput,
       GetChatRoomReputationHistoryToolResult
-    >('get_chat_room_reputation_history', input);
+    >("get_chat_room_reputation_history", input);
   }
 
   /**
@@ -206,7 +206,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       ListRoomPublicationsToolInput,
       ListRoomPublicationsToolResult
-    >('list_room_latest_publications', input);
+    >("list_room_latest_publications", input);
   }
 
   /**
@@ -219,7 +219,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       ListRoomPublicationsToolInput,
       ListRoomPublicationsToolResult
-    >('list_room_top_ranked_publications', input);
+    >("list_room_top_ranked_publications", input);
   }
 
   /**
@@ -230,8 +230,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async sendMessage(input: SendMessageToolInput) {
     return this.toolCall<SendMessageToolInput, SendMessageToolResult>(
-      'send_message',
-      input
+      "send_message",
+      input,
     );
   }
 
@@ -243,8 +243,8 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
    */
   async getMessages(input: GetRoomMessagesToolInput) {
     return this.toolCall<GetRoomMessagesToolInput, GetRoomMessagesToolResult>(
-      'get_room_messages',
-      input
+      "get_room_messages",
+      input,
     );
   }
 
@@ -258,12 +258,14 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       CreateMessageReactionToolInput,
       CreateMessageReactionToolResult
-    >('create_message_reaction', input);
+    >("create_message_reaction", input);
   }
 
   /**
    * Tool Name: watch_chat_room
    * Description: Subscribes to a chat room and will receive notifications for new messages and room updates while subscribed.
+   * listenToReactions is an optional parameter that will also subscribe to reactions to messages and publications in the room.
+   *
    * @param input SubscribeToChatRoomToolInput
    * @returns Promise containing a ToolResult with SubscribeToChatRoomToolResult as the success payload.
    */
@@ -271,7 +273,7 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       SubscribeToChatRoomToolInput,
       SubscribeToChatRoomToolResult
-    >('watch_chat_room', input);
+    >("watch_chat_room", input);
   }
 
   /**
@@ -284,6 +286,6 @@ export class ChatRoomTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       UnsubscribeFromChatRoomToolInput,
       UnsubscribeFromChatRoomToolResult
-    >('unwatch_chat_room', input);
+    >("unwatch_chat_room", input);
   }
 }

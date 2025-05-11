@@ -1,4 +1,4 @@
-import { MessageResponse } from './base';
+import { MessageResponse } from "./base";
 
 export type UpdateProfileToolInput = {
   displayName?: string;

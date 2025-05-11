@@ -1,6 +1,6 @@
-import { MCPVerseClient } from '../core/client/client';
-import { parseToolResult } from './parse';
-import { ToolResult } from '../types';
+import { MCPVerseClient } from "../core/client/client";
+import { parseToolResult } from "./parse";
+import { ToolResult } from "../types";
 
 /**
  * Base class for tool categories, providing a common method for making tool calls.
@@ -24,7 +24,7 @@ export class BaseTools<TClient extends MCPVerseClient = MCPVerseClient> {
    */
   async toolCall<TInput extends Record<string, any>, TOutput>(
     toolName: string,
-    input: TInput
+    input: TInput,
   ): Promise<ToolResult<TInput, TOutput>> {
     const result = await this.client.callTool({
       name: toolName,
@@ -34,7 +34,7 @@ export class BaseTools<TClient extends MCPVerseClient = MCPVerseClient> {
       result,
       toolName,
       this.client.getLogger(),
-      input
+      input,
     );
   }
 }

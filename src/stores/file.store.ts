@@ -1,12 +1,12 @@
-import { promises as fs } from 'node:fs';
-import { dirname } from 'node:path';
-import { AgentCredentials } from '../types/auth'; // Import for the credential data type
-import { Logger } from '../core/logger/interface';
-import { CredentialStore } from './store';
-import { ConsoleLogger } from '../core/logger/console';
-import { DEFAULT_LOG_LEVEL } from '../constants';
+import { promises as fs } from "node:fs";
+import { dirname } from "node:path";
+import { AgentCredentials } from "../types/auth"; // Import for the credential data type
+import { Logger } from "../core/logger/interface";
+import { CredentialStore } from "./store";
+import { ConsoleLogger } from "../core/logger/console";
+import { DEFAULT_LOG_LEVEL } from "../constants";
 
-const LOG_PREFIX = '[FileCredentialStore]';
+const LOG_PREFIX = "[FileCredentialStore]";
 
 /**
  * Implements ICredentialStore using the local filesystem.
@@ -24,7 +24,7 @@ export class FileCredentialStore extends CredentialStore {
     super();
 
     if (!filePath) {
-      throw new Error('File path cannot be empty.');
+      throw new Error("File path cannot be empty.");
     }
 
     this.filePath = filePath;
@@ -39,26 +39,26 @@ export class FileCredentialStore extends CredentialStore {
   async load(): Promise<AgentCredentials | null> {
     try {
       this.log.debug(
-        `${LOG_PREFIX} Attempting to load credentials from: ${this.filePath}`
+        `${LOG_PREFIX} Attempting to load credentials from: ${this.filePath}`,
       );
-      const data = await fs.readFile(this.filePath, 'utf-8');
+      const data = await fs.readFile(this.filePath, "utf-8");
       const credentials = JSON.parse(data) as AgentCredentials;
 
       if (credentials && credentials.agentId && credentials.privateKey) {
         this.log.info(
-          `${LOG_PREFIX} Successfully loaded credentials for agent: ${credentials.agentId}`
+          `${LOG_PREFIX} Successfully loaded credentials for agent: ${credentials.agentId}`,
         );
         return credentials;
       }
 
       this.log.warn(
-        `${LOG_PREFIX} Loaded file exists but contains invalid credentials`
+        `${LOG_PREFIX} Loaded file exists but contains invalid credentials`,
       );
       return null;
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === "ENOENT") {
         this.log.debug(
-          `${LOG_PREFIX} No credentials file found at: ${this.filePath}`
+          `${LOG_PREFIX} No credentials file found at: ${this.filePath}`,
         );
         return null;
       }
@@ -74,20 +74,20 @@ export class FileCredentialStore extends CredentialStore {
   async save(credentials: AgentCredentials): Promise<void> {
     if (!credentials || !credentials.agentId || !credentials.privateKey) {
       this.log.error(`${LOG_PREFIX} Invalid credentials provided to save`);
-      throw new Error('Invalid credentials provided to save.');
+      throw new Error("Invalid credentials provided to save.");
     }
 
     try {
       this.log.debug(
-        `${LOG_PREFIX} Saving credentials for agent: ${credentials.agentId}`
+        `${LOG_PREFIX} Saving credentials for agent: ${credentials.agentId}`,
       );
       const dir = dirname(this.filePath);
       await fs.mkdir(dir, { recursive: true });
 
       const data = JSON.stringify(credentials, null, 2); // Pretty print JSON
-      await fs.writeFile(this.filePath, data, 'utf-8');
+      await fs.writeFile(this.filePath, data, "utf-8");
       this.log.info(
-        `${LOG_PREFIX} Successfully saved credentials for agent: ${credentials.agentId}`
+        `${LOG_PREFIX} Successfully saved credentials for agent: ${credentials.agentId}`,
       );
     } catch (error: any) {
       this.log.error(`${LOG_PREFIX} Failed to save credentials:`, error);
@@ -101,12 +101,12 @@ export class FileCredentialStore extends CredentialStore {
   async clear(): Promise<void> {
     try {
       this.log.debug(
-        `${LOG_PREFIX} Attempting to clear credentials file: ${this.filePath}`
+        `${LOG_PREFIX} Attempting to clear credentials file: ${this.filePath}`,
       );
       await fs.unlink(this.filePath);
       this.log.info(`${LOG_PREFIX} Successfully cleared credentials file`);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === "ENOENT") {
         this.log.debug(`${LOG_PREFIX} No credentials file found to clear`);
         return;
       }

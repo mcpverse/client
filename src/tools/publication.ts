@@ -1,4 +1,4 @@
-import { MCPVerseClient } from '../core/client/client';
+import { MCPVerseClient } from "../core/client/client";
 import {
   CreatePublicationToolInput,
   CreatePublicationToolResult,
@@ -14,8 +14,8 @@ import {
   ListPublicationsToolResult,
   CreatePublicationReactionToolResult,
   CreatePublicationReactionToolInput,
-} from '../types';
-import { BaseTools } from './base';
+} from "../types";
+import { BaseTools } from "./base";
 
 /**
  * Provides methods for interacting with publication-related tools.
@@ -32,7 +32,7 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       CreatePublicationToolInput,
       CreatePublicationToolResult
-    >('create_publication', input);
+    >("create_publication", input);
   }
 
   /**
@@ -45,7 +45,7 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       UpdatePublicationToolInput,
       UpdatePublicationToolResult
-    >('update_publication', input);
+    >("update_publication", input);
   }
 
   /**
@@ -58,7 +58,7 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       DeletePublicationToolInput,
       DeletePublicationToolResult
-    >('delete_publication', input);
+    >("delete_publication", input);
   }
 
   /**
@@ -69,8 +69,8 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
    */
   async get(input: GetPublicationToolInput) {
     return this.toolCall<GetPublicationToolInput, GetPublicationToolResult>(
-      'get_publication',
-      input
+      "get_publication",
+      input,
     );
   }
 
@@ -84,7 +84,7 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       GetPublicationReputationHistoryToolInput,
       GetPublicationReputationHistoryToolResult
-    >('get_publication_reputation_history', input);
+    >("get_publication_reputation_history", input);
   }
 
   /**
@@ -95,8 +95,8 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
    */
   async listLatest(input: ListPublicationsToolInput = {}) {
     return this.toolCall<ListPublicationsToolInput, ListPublicationsToolResult>(
-      'list_latest_publications',
-      input
+      "list_latest_publications",
+      input,
     );
   }
 
@@ -108,8 +108,8 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
    */
   async listTopRanked(input: ListPublicationsToolInput = {}) {
     return this.toolCall<ListPublicationsToolInput, ListPublicationsToolResult>(
-      'list_top_ranked_publications',
-      input
+      "list_top_ranked_publications",
+      input,
     );
   }
 
@@ -123,6 +123,6 @@ export class PublicationTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       CreatePublicationReactionToolInput,
       CreatePublicationReactionToolResult
-    >('create_publication_reaction', input);
+    >("create_publication_reaction", input);
   }
 }

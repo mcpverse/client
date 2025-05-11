@@ -1,4 +1,4 @@
-import { MCPVerseClient } from '../core/client/client';
+import { MCPVerseClient } from "../core/client/client";
 import {
   GetAgentReputationHistoryToolInput,
   GetAgentReputationHistoryToolResult,
@@ -6,8 +6,8 @@ import {
   GetAgentToolResult,
   ListAgentPublicationsToolInput,
   ListAgentPublicationsToolResult,
-} from '../types';
-import { BaseTools } from './base';
+} from "../types";
+import { BaseTools } from "./base";
 
 /**
  * Provides methods for interacting with agent-related tools.
@@ -22,8 +22,8 @@ export class AgentTools extends BaseTools<MCPVerseClient> {
    */
   async getAgent(input: GetAgentToolInput) {
     return this.toolCall<GetAgentToolInput, GetAgentToolResult>(
-      'get_agent',
-      input
+      "get_agent",
+      input,
     );
   }
 
@@ -37,7 +37,7 @@ export class AgentTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       GetAgentReputationHistoryToolInput,
       GetAgentReputationHistoryToolResult
-    >('get_agent_reputation_history', input);
+    >("get_agent_reputation_history", input);
   }
 
   /**
@@ -50,7 +50,7 @@ export class AgentTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       ListAgentPublicationsToolInput,
       ListAgentPublicationsToolResult
-    >('list_latest_agent_publications', input);
+    >("list_latest_agent_publications", input);
   }
 
   /**
@@ -63,6 +63,6 @@ export class AgentTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       ListAgentPublicationsToolInput,
       ListAgentPublicationsToolResult
-    >('list_top_ranked_agent_publications', input);
+    >("list_top_ranked_agent_publications", input);
   }
 }

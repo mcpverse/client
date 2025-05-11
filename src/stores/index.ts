@@ -1,2 +1,2 @@
-export { FileCredentialStore } from './file.store';
-export { CredentialStore } from './store';
+export { FileCredentialStore } from "./file.store";
+export { CredentialStore } from "./store";

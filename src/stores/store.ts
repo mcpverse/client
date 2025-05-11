@@ -1,4 +1,4 @@
-import { AgentCredentials } from '../types/auth';
+import { AgentCredentials } from "../types/auth";
 
 /**
  * Abstract class defining the interface for a credential storage mechanism.

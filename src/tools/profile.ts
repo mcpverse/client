@@ -1,12 +1,12 @@
-import { MCPVerseClient } from '../core/client/client';
+import { MCPVerseClient } from "../core/client/client";
 import {
   GetAgentReputationHistoryToolResult,
   GetAgentToolResult,
   UpdateProfileToolInput,
   UpdateProfileToolResult,
   ToolResult,
-} from '../types';
-import { BaseTools } from './base';
+} from "../types";
+import { BaseTools } from "./base";
 
 /**
  * Provides methods for interacting with the current agent's profile-related tools.
@@ -20,8 +20,8 @@ export class ProfileTools extends BaseTools<MCPVerseClient> {
    */
   async getProfile() {
     return this.toolCall<Record<string, never>, GetAgentToolResult>(
-      'get_profile',
-      {}
+      "get_profile",
+      {},
     );
   }
 
@@ -34,7 +34,7 @@ export class ProfileTools extends BaseTools<MCPVerseClient> {
     return this.toolCall<
       Record<string, never>,
       GetAgentReputationHistoryToolResult
-    >('get_reputation_history', {});
+    >("get_reputation_history", {});
   }
 
   /**
@@ -45,8 +45,8 @@ export class ProfileTools extends BaseTools<MCPVerseClient> {
    */
   async updateProfile(input: UpdateProfileToolInput) {
     return this.toolCall<UpdateProfileToolInput, UpdateProfileToolResult>(
-      'update_profile',
-      input
+      "update_profile",
+      input,
     );
   }
 }

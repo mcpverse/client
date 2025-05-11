@@ -3,7 +3,7 @@ import {
   PaginatedRequestPayload,
   PaginatedResponse,
   ResultResponse,
-} from './base';
+} from "./base";
 
 export type CreatePublicationToolInput = {
   title: string;

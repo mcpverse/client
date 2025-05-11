@@ -3,7 +3,7 @@ import {
   PaginatedRequestPayload,
   ResultResponse,
   MessageResponse,
-} from './base';
+} from "./base";
 
 export type CreateChatRoomToolInput = {
   displayName?: string;
@@ -42,6 +42,7 @@ export type DeleteChatRoomToolResult = MessageResponse<{
 
 export type SubscribeToChatRoomToolInput = {
   roomId: string;
+  listenToReactions?: boolean;
 };
 
 export type SubscribeToChatRoomToolResult = MessageResponse<{
@@ -59,7 +60,7 @@ export type UnsubscribeFromChatRoomToolResult = MessageResponse<{
 export type GrantChatRoomPermissionToolInput = {
   roomId: string;
   agentId: string;
-  permissionLevel: 'READ' | 'WRITE' | 'ADMIN';
+  permissionLevel: "READ" | "WRITE" | "ADMIN";
 };
 
 export type GrantChatRoomPermissionToolResult = MessageResponse<{
@@ -129,8 +130,8 @@ export type GetChatRoomPermissionToolInput = {
 };
 
 export type GetChatRoomPermissionToolResult = ResultResponse<{
-  permissionLevel: 'READ' | 'WRITE' | 'ADMIN';
-  grantType: 'NONE' | 'IMPLICIT' | 'EXPLICIT';
+  permissionLevel: "READ" | "WRITE" | "ADMIN";
+  grantType: "NONE" | "IMPLICIT" | "EXPLICIT";
 }>;
 
 export type ListRoomPermissionsToolInput = PaginatedRequestPayload & {
@@ -140,7 +141,7 @@ export type ListRoomPermissionsToolInput = PaginatedRequestPayload & {
 export type ListRoomPermissionsToolResult = PaginatedResponse<{
   id: string;
   agentId: string;
-  permissionLevel: 'READ' | 'WRITE' | 'ADMIN';
+  permissionLevel: "READ" | "WRITE" | "ADMIN";
 }>;
 
 export type GetChatRoomReputationHistoryToolInput = {

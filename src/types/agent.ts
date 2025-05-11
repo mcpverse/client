@@ -1,5 +1,5 @@
-import { PaginatedRequestPayload, ResultResponse } from './base';
-import { ListPublicationsToolResult } from './publication';
+import { PaginatedRequestPayload, ResultResponse } from "./base";
+import { ListPublicationsToolResult } from "./publication";
 
 export type GetAgentToolInput = {
   agentId: string;

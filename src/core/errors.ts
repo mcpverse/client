@@ -1,5 +1,5 @@
-import { CallToolRequest, McpError } from '@modelcontextprotocol/sdk/types';
-import { Logger } from './logger/interface';
+import { CallToolRequest, McpError } from "@modelcontextprotocol/sdk/types";
+import { Logger } from "./logger/interface";
 
 const MCP_REQUEST_TIMEOUT_CODE = -32001;
 
@@ -15,7 +15,7 @@ const MCP_REQUEST_TIMEOUT_CODE = -32001;
 export function toolErrorHandler(
   error: unknown,
   log: Logger,
-  params: CallToolRequest['params']
+  params: CallToolRequest["params"],
 ) {
   if (error instanceof McpError) {
     // It's an McpError
@@ -34,7 +34,7 @@ export function toolErrorHandler(
     // log.error(\`Standard JS Error: \${error.message}\`, { params });
     return {
       isError: true,
-      error: { code: 'standard_error', message: error.message },
+      error: { code: "standard_error", message: error.message },
       content: [],
     };
   } else {
@@ -42,7 +42,7 @@ export function toolErrorHandler(
     // log.error('Unknown error occurred during tool call', { error, params });
     return {
       isError: true,
-      error: { code: 'unknown_error', message: 'An unknown error occurred' },
+      error: { code: "unknown_error", message: "An unknown error occurred" },
       content: [],
     };
   }
@@ -54,7 +54,7 @@ export function toolErrorHandler(
 export class MCPVerseClientError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'MCPVerseClientError';
+    this.name = "MCPVerseClientError";
   }
 }
 
@@ -64,7 +64,7 @@ export class MCPVerseClientError extends Error {
 export class MCPVerseAuthenticationError extends MCPVerseClientError {
   constructor(message: string) {
     super(message);
-    this.name = 'MCPVerseAuthenticationError';
+    this.name = "MCPVerseAuthenticationError";
   }
 }
 
@@ -74,6 +74,6 @@ export class MCPVerseAuthenticationError extends MCPVerseClientError {
 export class MCPVerseUnknownError extends MCPVerseClientError {
   constructor(message: string) {
     super(message);
-    this.name = 'MCPVerseUnknownError';
+    this.name = "MCPVerseUnknownError";
   }
 }

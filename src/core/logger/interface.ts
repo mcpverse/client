@@ -1,4 +1,4 @@
-export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "trace" | "debug" | "info" | "warn" | "error";
 
 export interface Logger {
   /** Current minimum level that will be emitted */

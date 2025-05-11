@@ -18,6 +18,23 @@ export type ChatRoomMessageNotification = {
   };
 };
 
+export type ChatRoomMessageReactionNotification = {
+  type: `room/${string}/message/reactions`;
+  data: {
+    messageId: string;
+    reactions: Record<string, number>;
+  }[];
+};
+
+export type MessageReactionReceivedNotification = {
+  type: `room/message/reactions/received`;
+  data: {
+    messageId: string;
+    roomId: string;
+    reactions: Record<string, number>;
+  }[];
+};
+
 export type ChatRoomCreatedNotification = {
   type: `room/created`;
   data: {
@@ -60,7 +77,7 @@ export type ChatRoomPermissionGrantedNotification = {
     id: string;
     roomId: string;
     targetAgentId: string;
-    permissionLevel: 'READ' | 'WRITE' | 'ADMIN';
+    permissionLevel: "READ" | "WRITE" | "ADMIN";
   };
 };
 
@@ -70,7 +87,7 @@ export type ChatRoomPermissionRevokedNotification = {
     id: string;
     roomId: string;
     targetAgentId: string;
-    permissionLevel: 'READ' | 'WRITE' | 'ADMIN';
+    permissionLevel: "READ" | "WRITE" | "ADMIN";
   };
 };
 
@@ -122,6 +139,14 @@ export type ChatRoomPublicationDeletedNotification = {
   };
 };
 
+export type ChatRoomPublicationReactionNotification = {
+  type: `room/${string}/publication/reactions`;
+  data: {
+    publicationId: string;
+    reactions: Record<string, number>;
+  }[];
+};
+
 export type PublicationCreatedNotification = {
   type: `publication/created`;
   data: {
@@ -170,6 +195,14 @@ export type PublicationDeletedNotification = {
   };
 };
 
+export type PublicationReactionReceivedNotification = {
+  type: `publication/reactions/received`;
+  data: {
+    publicationId: string;
+    reactions: Record<string, number>;
+  }[];
+};
+
 export type AgentUpdatedNotification = {
   type: `profile/updated`;
   data: {
@@ -186,6 +219,8 @@ export type AgentUpdatedNotification = {
 
 export type Notification =
   | MessageCreatedNotification
+  | MessageReactionReceivedNotification
+  | ChatRoomMessageReactionNotification
   | ChatRoomMessageNotification
   | ChatRoomCreatedNotification
   | ChatRoomUpdatedNotification
@@ -195,15 +230,18 @@ export type Notification =
   | ChatRoomPublicationCreatedNotification
   | ChatRoomPublicationUpdatedNotification
   | ChatRoomPublicationDeletedNotification
+  | ChatRoomPublicationReactionNotification
   | PublicationCreatedNotification
   | PublicationUpdatedNotification
   | PublicationDeletedNotification
+  | PublicationReactionReceivedNotification
   | AgentUpdatedNotification;
-export type NotificationType = Notification['type'];
+
+export type NotificationType = Notification["type"];
 
 // Helper type to map each Notification type string to its data payload
 export type NotificationDataMap = {
-  [N in Notification as N['type']]: N['data'];
+  [N in Notification as N["type"]]: N["data"];
 };
 
 // Redefine NotificationPayload using the mapped type for direct lookup
@@ -212,39 +250,45 @@ export type NotificationPayload<T extends NotificationType> =
 
 // Callback type remains the same
 export type NotificationCallback<T extends NotificationType> = (
-  payload: NotificationPayload<T>
+  payload: NotificationPayload<T>,
 ) => void;
 
 export const NOTIFICATIONS = [
   // global
-  'room/created',
-  'publication/created',
-  'profile/updated',
+  "room/created",
+  "publication/created",
+  "profile/updated",
+  "room/message/reactions/received",
+  "publication/reactions/received",
 
   // room-scoped – use “:roomId” as a placeholder
-  'room/:roomId/message',
-  'room/:roomId/message/created',
-  'room/:roomId/updated',
-  'room/:roomId/deleted',
-  'room/:roomId/permission/granted',
-  'room/:roomId/permission/revoked',
-  'room/:roomId/publication/created',
-  'room/:roomId/publication/updated',
-  'room/:roomId/publication/deleted',
+  "room/:roomId/message",
+  "room/:roomId/message/created",
+  "room/:roomId/message/reactions",
+  "room/:roomId/updated",
+  "room/:roomId/deleted",
+  "room/:roomId/permission/granted",
+  "room/:roomId/permission/revoked",
+  "room/:roomId/publication/created",
+  "room/:roomId/publication/updated",
+  "room/:roomId/publication/deleted",
+  "room/:roomId/publication/reactions",
 ] as const;
 
 /** Literal-union that VS Code can complete */
 export type NotificationHint = (typeof NOTIFICATIONS)[number];
 
 export const RoomEvent = [
-  'message',
-  'message/created',
-  'updated',
-  'deleted',
-  'permission/granted',
-  'permission/revoked',
-  'publication/created',
-  'publication/updated',
-  'publication/deleted',
+  "message",
+  "message/created",
+  "message/reactions",
+  "updated",
+  "deleted",
+  "permission/granted",
+  "permission/revoked",
+  "publication/created",
+  "publication/updated",
+  "publication/deleted",
+  "publication/reactions",
 ] as const;
 type RoomEvent = (typeof RoomEvent)[number];

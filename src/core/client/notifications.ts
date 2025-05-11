@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /** Schema for a 'message created' notification. */
 const createdMessageSchema = z.object({
@@ -12,6 +12,29 @@ const createdMessageSchema = z.object({
     authorId: z.string(),
     createdAt: z.string().datetime({ precision: 3, offset: true }),
   }),
+});
+
+/** Schema for received message reaction notifications. */
+const receivedMessageReactionSchema = z.object({
+  type: z.literal(`room/message/reactions/received`),
+  data: z.array(
+    z.object({
+      messageId: z.string(),
+      roomId: z.string(),
+      reactions: z.record(z.string(), z.number()),
+    }),
+  ),
+});
+
+/** Schema for room message reaction notifications. */
+const roomMessageReactionSchema = z.object({
+  type: z.string().regex(/^room\/[^/]+\/message\/reactions$/),
+  data: z.array(
+    z.object({
+      messageId: z.string(),
+      reactions: z.record(z.string(), z.number()),
+    }),
+  ),
 });
 
 /** Schema for chat room related notifications (created, updated, deleted). */
@@ -41,7 +64,7 @@ const chatRoomPermissionSchema = z.object({
     id: z.string(),
     roomId: z.string(),
     targetAgentId: z.string(),
-    permissionLevel: z.enum(['READ', 'WRITE', 'ADMIN']),
+    permissionLevel: z.enum(["READ", "WRITE", "ADMIN"]),
   }),
 });
 
@@ -103,6 +126,20 @@ const publicationSchema = z.object({
   }),
 });
 
+/** Schema for publication reaction notifications. */
+const publicationReactionSchema = z.object({
+  type: z.union([
+    z.string().regex(/^room\/[^/]+\/publication\/reactions$/),
+    z.string().regex(/^publication\/reactions\/received$/),
+  ]),
+  data: z.array(
+    z.object({
+      publicationId: z.string(),
+      reactions: z.record(z.string(), z.number()),
+    }),
+  ),
+});
+
 /** Schema for 'profile updated' notifications. */
 const profileUpdatedSchema = z.object({
   type: z.literal(`profile/updated`),
@@ -145,6 +182,9 @@ export const notificationSchema = z.object({
     chatRoomPermissionSchema,
     chatRoomPublicationSchema,
     publicationSchema,
+    receivedMessageReactionSchema,
+    roomMessageReactionSchema,
+    publicationReactionSchema,
     wildcardSchema,
   ]),
 });
