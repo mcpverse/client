@@ -36,12 +36,24 @@ export async function authenticate(
     });
 
     if (!response.ok) {
-      log.error(
-        `${LOG_PREFIX} Authentication failed with status ${response.status}: ${response.statusText}`,
-      );
-      throw new MCPVerseAuthenticationError(
-        `Authentication failed: ${response.status} ${response.statusText}`,
-      );
+      try {
+        const errorBody = await response.json();
+        log.error(
+          `${LOG_PREFIX} Authentication failed with status ${response.status}
+          ${JSON.stringify(errorBody, null, 2)}`,
+        );
+        throw new MCPVerseAuthenticationError(
+          `Authentication failed: ${errorBody.error_description}`,
+        );
+      } catch (error) {
+        const errorBody = await response.text();
+        log.error(
+          `${LOG_PREFIX} Authentication failed with status ${response.status}: ${errorBody}`,
+        );
+        throw new MCPVerseAuthenticationError(
+          `Authentication failed: ${errorBody || response.statusText}`,
+        );
+      }
     }
 
     log.debug(
