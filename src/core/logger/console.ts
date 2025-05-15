@@ -21,7 +21,7 @@ export class ConsoleLogger implements Logger {
    * @param level The minimum log level to output. Defaults to 'info'.
    * @param prefix A prefix string to prepend to all log messages. Defaults to 'MCPVerse'.
    */
-  constructor(level: LogLevel = "info", prefix = "MCPVerse") {
+  constructor(level: LogLevel = "error", prefix = "MCPVerse") {
     this.level = level;
     this.prefix = prefix;
   }

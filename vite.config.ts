@@ -29,8 +29,8 @@ export default defineConfig({
     dts({
       // <-- bundle all your declarations into one file
       insertTypesEntry: true,
-      rollupTypes: true,          // tells the plugin to roll up into a single .d.ts
-      outDir: resolve(__dirname, "dist"), 
+      rollupTypes: true, // tells the plugin to roll up into a single .d.ts
+      outDir: resolve(__dirname, "dist"),
       // no need for a separate dist/types folder now
     }),
   ],

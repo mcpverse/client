@@ -3,7 +3,7 @@ import { LogLevel } from "./core/logger/interface";
 /**
  * The default log level for the client.
  */
-export const DEFAULT_LOG_LEVEL: LogLevel = "info";
+export const DEFAULT_LOG_LEVEL: LogLevel = "error";
 
 /**
  * The default server URL to connect to.

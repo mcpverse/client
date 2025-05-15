@@ -1,6 +1,4 @@
-export {
-    MCPVerseClient
-} from "./client/client";
+export { MCPVerseClient } from "./client/client";
 export type { Logger, LogLevel } from "./logger/interface";
 export { ConsoleLogger } from "./logger/console";
 export * from "./client/sse-client";
