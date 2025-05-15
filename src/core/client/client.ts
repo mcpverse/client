@@ -391,7 +391,6 @@ export class MCPVerseClient {
     return this.log;
   }
 
-
   /**
    * Gets the underlying raw MCP SDK Client instance.
    * Useful for accessing lower-level client functionalities if needed.
