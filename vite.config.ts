@@ -27,21 +27,11 @@ export default defineConfig({
   },
   plugins: [
     dts({
-      // Specify the entry point for generating types
-      entryRoot: resolve(__dirname, "src"),
-      // Use outDir instead of outputDir
-      outDir: resolve(__dirname, "dist/types"), // Output types to a subfolder
-      // Insert TS types into ES module build
+      // <-- bundle all your declarations into one file
       insertTypesEntry: true,
-      // Exclude test files from declaration generation
-      exclude: [
-        "**/__tests__/**",
-        "**/*.spec.ts",
-        "**/*.test.ts",
-        "tests/**", // Exclude the entire tests directory
-      ],
-      // Optional: specify tsconfig file path
-      // tsconfigPath: 'tsconfig.json'
+      rollupTypes: true,          // tells the plugin to roll up into a single .d.ts
+      outDir: resolve(__dirname, "dist"), 
+      // no need for a separate dist/types folder now
     }),
   ],
 });

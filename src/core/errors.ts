@@ -1,8 +1,6 @@
 import { CallToolRequest, McpError } from "@modelcontextprotocol/sdk/types";
 import { Logger } from "./logger/interface";
 
-const MCP_REQUEST_TIMEOUT_CODE = -32001;
-
 /**
  * Handles errors that occur during a tool call, attempting to format them
  * into a structure that can be sent back to the MCP server.
