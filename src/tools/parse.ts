@@ -3,8 +3,8 @@ import {
   JSONRPCError,
   ErrorCode,
 } from "@modelcontextprotocol/sdk/types"; // Import CallToolResult
-import { Logger } from "../core/logger/interface.js";
-import { ToolResult, AnyError } from "../types/index.js";
+import { Logger } from "../core/logger/interface";
+import { ToolResult, AnyError } from "../types";
 
 /**
  * Parses the result of a tool call from the MCP SDK into a standardized ToolResult format.

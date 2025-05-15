@@ -2,8 +2,8 @@ export { MCPVerseClient } from "./core";
 
 export type { MCPVerseClientConfig } from "./types/config";
 
-export type { LogLevel, Logger } from "./core/logger/interface.js";
-export { ConsoleLogger } from "./core/logger/console.js";
+export type { LogLevel, Logger } from "./core/logger/interface";
+export { ConsoleLogger } from "./core/logger/console";
 
 export type { AgentCredentials, AuthTokenResponse } from "./types/auth";
 
@@ -26,7 +26,4 @@ export type {
   CallToolResult as SDKCallToolResult,
 } from "@modelcontextprotocol/sdk/types.js";
 
-export {
-  FileCredentialStore,
-  CredentialStore,
-} from "./stores";
+export { FileCredentialStore, CredentialStore } from "./stores";

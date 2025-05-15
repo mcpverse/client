@@ -24,7 +24,7 @@ import { Logger } from "../logger/interface";
 import { ConsoleLogger } from "../logger/console";
 import { DEFAULT_LOG_LEVEL, DEFAULT_SERVER_URL } from "../../constants";
 import { TokenManager } from "./token-manager";
-import { MCPVerseAuthenticationError, MCPVerseClientError } from "../errors";
+import { MCPVerseAuthenticationError } from "../errors";
 
 const LOG_PREFIX = "[MCPVerseClient]";
 

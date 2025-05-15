@@ -1,4 +1,4 @@
-import { AnyError } from "./error.js";
+import { AnyError } from "./error";
 
 /**
  * Represents a successful tool result.

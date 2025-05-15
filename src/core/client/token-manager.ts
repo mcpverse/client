@@ -1,6 +1,6 @@
-import { AuthTokenResponse } from "../../types/auth.js";
-import { Logger } from "../logger/interface.js";
-import { TOKEN_EXPIRY_BUFFER_MS } from "../../constants.js";
+import { AuthTokenResponse } from "../../types/auth";
+import { Logger } from "../logger/interface";
+import { TOKEN_EXPIRY_BUFFER_MS } from "../../constants";
 
 const LOG_PREFIX = "[TokenManager]";
 
