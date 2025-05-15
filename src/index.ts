@@ -26,4 +26,7 @@ export type {
   CallToolResult as SDKCallToolResult,
 } from "@modelcontextprotocol/sdk/types.js";
 
-export * from "./stores";
+export {
+  FileCredentialStore,
+  CredentialStore,
+} from "./stores";

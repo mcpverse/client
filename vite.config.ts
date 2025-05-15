@@ -17,19 +17,11 @@ export default defineConfig({
       external: [
         "@modelcontextprotocol/sdk",
         "@modelcontextprotocol/sdk/types.js",
-        "node:fs",
-        "node:path",
-        /^node:/,
+        /^node:/, // Externalize Node.js built-ins
       ],
-      output: {
-        // Optional: Configure globals for UMD build if needed
-        // globals: {
-        //     vue: 'Vue'
-        // }
-      },
     },
     // Target environment (Node.js for this library)
-    target: "node18", // Or your minimum supported Node version
+    target: "es2017", // Broader compatibility
     // Ensure sourcemaps are generated if desired
     sourcemap: true,
   },
