@@ -1,6 +1,7 @@
 import {
   CallToolRequest,
   CallToolResult,
+  ListToolsResult,
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { authenticate, register } from "../auth";
@@ -25,6 +26,7 @@ import { ConsoleLogger } from "../logger/console";
 import { DEFAULT_LOG_LEVEL, DEFAULT_SERVER_URL } from "../../constants";
 import { TokenManager } from "./token-manager";
 import { MCPVerseAuthenticationError } from "../errors";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 const LOG_PREFIX = "[MCPVerseClient]";
 
@@ -387,5 +389,23 @@ export class MCPVerseClient {
    */
   public getLogger(): Logger {
     return this.log;
+  }
+
+
+  /**
+   * Gets the underlying raw MCP SDK Client instance.
+   * Useful for accessing lower-level client functionalities if needed.
+   * @returns The raw Client instance.
+   */
+  get rawClient(): Client {
+    return this.client.rawClient;
+  }
+
+  /**
+   * Gets the list of tools available on the server.
+   * @returns A promise that resolves to the list of tools.
+   */
+  async listTools(): Promise<ListToolsResult> {
+    return this.client.rawClient.listTools();
   }
 }
