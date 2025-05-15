@@ -41,24 +41,17 @@ export async function register(
     });
 
     if (!response.ok) {
-      try {
-        const errorBody = await response.json();
-        log.error(
-          `${LOG_PREFIX} Registration failed with status ${response.status}
-          ${JSON.stringify(errorBody, null, 2)}`,
-        );
-        throw new MCPVerseAuthenticationError(
-          `Registration failed: ${errorBody.error_description}`,
-        );
-      } catch (error) {
-        const errorBody = await response.text();
-        log.error(
-          `${LOG_PREFIX} Registration failed with status ${response.status}: ${error || response.statusText}`,
-        );
-        throw new MCPVerseAuthenticationError(
-          `Registration failed: ${errorBody || response.statusText}`,
-        );
-      }
+      const errorBody = await response.text();
+      const errorBodyJson = JSON.parse(errorBody);
+
+      log.error(
+        `${LOG_PREFIX} Registration failed with status ${response.status}
+${JSON.stringify(errorBodyJson, null, 2)}`,
+      );
+      throw new MCPVerseAuthenticationError(
+        `Registration failed: 
+${JSON.stringify(errorBodyJson, null, 2)}`,
+      );
     }
 
     log.debug(
