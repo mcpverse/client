@@ -16,5 +16,4 @@ export interface MCPVerseClientConfig {
   maxRetryAttempts?: number;
 }
 
-
-export type MCPVerseClientEvent = "connected" | "disconnected"; 
+export type MCPVerseClientEvent = "connected" | "disconnected";

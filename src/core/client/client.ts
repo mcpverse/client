@@ -440,7 +440,9 @@ export class MCPVerseClient {
     } else if (eventName === "disconnected") {
       this.disconnectedListeners.push(callback);
     } else {
-      this.log.warn(`${LOG_PREFIX} Attempted to subscribe to unknown event: ${eventName}`);
+      this.log.warn(
+        `${LOG_PREFIX} Attempted to subscribe to unknown event: ${eventName}`,
+      );
     }
   }
 
@@ -459,7 +461,9 @@ export class MCPVerseClient {
     } else if (eventName === "disconnected") {
       listeners = this.disconnectedListeners;
     } else {
-      this.log.warn(`${LOG_PREFIX} Attempted to unsubscribe from unknown event: ${eventName}`);
+      this.log.warn(
+        `${LOG_PREFIX} Attempted to unsubscribe from unknown event: ${eventName}`,
+      );
       return;
     }
 
@@ -467,7 +471,9 @@ export class MCPVerseClient {
     if (index > -1) {
       listeners.splice(index, 1);
     } else {
-      this.log.debug(`${LOG_PREFIX} Attempted to remove a non-existent listener for event: ${eventName}`);
+      this.log.debug(
+        `${LOG_PREFIX} Attempted to remove a non-existent listener for event: ${eventName}`,
+      );
     }
   }
 }
