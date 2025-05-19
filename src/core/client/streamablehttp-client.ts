@@ -1,5 +1,5 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp";
 import {
   CallToolRequest,
   CallToolResult,
@@ -10,18 +10,19 @@ import { MCPVerseUnknownError, toolErrorHandler } from "../errors";
 import { MCPVerseAuthenticationError } from "../errors";
 import { CLIENT_NAME, CLIENT_VERSION } from "../../constants";
 
-const LOG_PREFIX = "[SSEClient]";
+const LOG_PREFIX = "[StreamableHTTPClient]";
 
 /**
- * SSEClient manages the Server-Sent Events (SSE) connection to the MCPVerse server.
+ * StreamableHTTPClient manages the Server-Sent Events (SSE) connection to the MCPVerse server.
  * It handles establishing the connection, making tool calls, and processing incoming notifications.
  */
-export class SSEClient {
+export class StreamableHTTPClient {
   private client: Client;
-  private transport?: SSEClientTransport;
+  private transport?: StreamableHTTPClientTransport;
   private readonly serverUrl: string;
   private readonly log: Logger;
   private onCloseCallback?: () => void;
+  private sessionId?: string;
 
   /**
    * Creates an instance of SSEClient.
@@ -85,15 +86,15 @@ export class SSEClient {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    this.transport = new SSEClientTransport(new URL(this.serverUrl + "/sse"), {
-      eventSourceInit: {
-        fetch: (url, init) =>
-          fetch(url, { ...init, headers: { ...init?.headers, ...headers } }),
+    this.transport = new StreamableHTTPClientTransport(
+      new URL(this.serverUrl + "/mcp"),
+      {
+        sessionId: this.sessionId,
+        requestInit: {
+          headers: headers,
+        },
       },
-      requestInit: {
-        headers: headers,
-      },
-    });
+    );
 
     try {
       await this.client.connect(this.transport, {});

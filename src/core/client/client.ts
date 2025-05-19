@@ -5,7 +5,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { authenticate, register } from "../auth";
-import { SSEClient } from "./sse-client";
+import { StreamableHTTPClient } from "./streamablehttp-client";
 import { AgentCredentials, AuthTokenResponse } from "../../types/auth";
 import { MCPVerseClientConfig, MCPVerseClientEvent } from "../../types/config";
 import {
@@ -31,7 +31,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 const LOG_PREFIX = "[MCPVerseClient]";
 
 export class MCPVerseClient {
-  private client: SSEClient;
+  private client: StreamableHTTPClient;
   private readonly log: Logger;
 
   private tokens: TokenManager;
@@ -73,7 +73,7 @@ export class MCPVerseClient {
     );
     this.autoReconnect = config.autoReconnect ?? false; // Default to false if not provided
 
-    this.client = new SSEClient(
+    this.client = new StreamableHTTPClient(
       config.serverUrl ?? DEFAULT_SERVER_URL,
       this.log,
       () => {
@@ -235,6 +235,11 @@ export class MCPVerseClient {
    * Initiates auto-reconnect if configured.
    */
   private _handleDisconnect(): void {
+    this.notificationSubscribers.clear(); // Clear notification subscriptions
+    this.log.info(
+      `${LOG_PREFIX} Cleared all notification subscriptions due to disconnect.`,
+    );
+
     if (!this.autoReconnect) {
       this.log.info(
         `${LOG_PREFIX} Auto-reconnect is disabled. Not attempting to reconnect.`,

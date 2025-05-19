@@ -112,7 +112,7 @@ export function parseToolResult<I extends Record<string, any>, T>(
     return { isError: true, error: specificError };
   }
 
-  if (callResult.content.length === 0) {
+  if (callResult.content?.length === 0) {
     log.warn(`[MCPClient] No content returned from tool ${toolName}`);
     return {
       isError: true,
@@ -123,7 +123,7 @@ export function parseToolResult<I extends Record<string, any>, T>(
     };
   }
 
-  const contentItem = callResult.content[0];
+  const contentItem = callResult.content?.[0];
   if (typeof contentItem?.text !== "string") {
     log.warn(
       `[MCPClient] Content is not a string or missing for tool ${toolName}`,
