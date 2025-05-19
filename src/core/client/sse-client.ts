@@ -54,8 +54,11 @@ export class SSEClient {
 
     this.client.onerror = (error) => {
       this.log.error(`${LOG_PREFIX} Connection error:`, error);
-      this.disconnect().catch(e => {
-        this.log.warn(`${LOG_PREFIX} Error during disconnect triggered by onerror:`, e);
+      this.disconnect().catch((e) => {
+        this.log.warn(
+          `${LOG_PREFIX} Error during disconnect triggered by onerror:`,
+          e,
+        );
       });
     };
   }

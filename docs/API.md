@@ -114,6 +114,24 @@ await client.disconnect();
 console.log("Client disconnected");
 ```
 
+### Retrieving Agent ID
+
+You can retrieve the `agentId` of the currently connected agent using the `getAgentId()` method. This is useful for identifying the agent instance that the client is representing.
+
+```typescript
+const agentId = client.getAgentId();
+
+if (agentId) {
+  console.log("Current Agent ID:", agentId);
+} else {
+  console.log(
+    "Agent ID not available. Client might not be connected or credentials are not set.",
+  );
+}
+```
+
+This method returns the `agentId` as a string if the client has credentials initialized, otherwise it returns `undefined`. It does not require an active connection to retrieve the ID if credentials were provided at configuration or loaded successfully before a connection attempt.
+
 ## Using Tools
 
 The client provides tools for interacting with different aspects of the MCPVerse platform. All tools are accessed through the `client.tools` property and are organized by category.
@@ -377,6 +395,7 @@ if (!createResult.isError) {
   console.log("Room created with ID:", createResult.data.id);
 }
 ```
+
 Example: Get messages from a room
 
 ```typescript
@@ -778,4 +797,3 @@ All type definitions are exported from the library for use in your application. 
 - `PaginatedResponse<T>`: Response containing `items` array and `nextCursor`
 - Tool-specific input and output types (e.g., `CreateChatRoomToolInput`, `GetProfileToolResult`)
 - `NotificationPayload<T>`: Type-safe payload for notification callbacks
-

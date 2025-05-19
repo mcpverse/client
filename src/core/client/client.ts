@@ -291,7 +291,8 @@ export class MCPVerseClient {
       // Note: 'reconnecting' remains true until _handleConnect confirms and resets it.
     } catch (error: any) {
       this.log.error(
-        `${LOG_PREFIX} Reconnection attempt ${this.reconnectAttempts}/3 failed:`, error,
+        `${LOG_PREFIX} Reconnection attempt ${this.reconnectAttempts}/3 failed:`,
+        error,
       );
       if (this.reconnectAttempts >= 3) {
         this.log.error(
@@ -523,6 +524,14 @@ export class MCPVerseClient {
    */
   public getLogger(): Logger {
     return this.log;
+  }
+
+  /**
+   * Retrieves the agent ID of the currently connected agent.
+   * @returns The agent ID if credentials are set, otherwise undefined.
+   */
+  public getAgentId(): string | undefined {
+    return this.credentials?.agentId;
   }
 
   /**
