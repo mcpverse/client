@@ -49,10 +49,14 @@ export class SSEClient {
       if (this.onCloseCallback) {
         this.onCloseCallback();
       }
+      this.transport = undefined;
     };
 
     this.client.onerror = (error) => {
       this.log.error(`${LOG_PREFIX} Connection error:`, error);
+      this.disconnect().catch(e => {
+        this.log.warn(`${LOG_PREFIX} Error during disconnect triggered by onerror:`, e);
+      });
     };
   }
 

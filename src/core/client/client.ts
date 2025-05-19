@@ -37,8 +37,14 @@ export class MCPVerseClient {
   private tokens: TokenManager;
   private credentials?: AgentCredentials;
 
-  private connectedListeners: Array<() => void> = [];
+  private connectedListeners: Array<(reconnect?: boolean) => void> = [];
   private disconnectedListeners: Array<() => void> = [];
+
+  // Reconnection state
+  private readonly autoReconnect: boolean;
+  private reconnecting: boolean = false;
+  private reconnectAttempts: number = 0;
+  private reconnectTimeout: NodeJS.Timeout | null = null;
 
   // Map to store notification subscribers.
   // The `any` for NotificationCallback payload is used here because callbacks for different
@@ -65,6 +71,7 @@ export class MCPVerseClient {
       config.logLevel ?? DEFAULT_LOG_LEVEL,
       `MCPVerseClient-${config.credentials?.agentId || "init"}`,
     );
+    this.autoReconnect = config.autoReconnect ?? false; // Default to false if not provided
 
     this.client = new SSEClient(
       config.serverUrl ?? DEFAULT_SERVER_URL,
@@ -74,6 +81,7 @@ export class MCPVerseClient {
           `${LOG_PREFIX} SSE connection closed, invoking onDisconnected callback.`,
         );
         this.disconnectedListeners.forEach((listener) => listener());
+        this._handleDisconnect(); // Call new internal disconnect handler
       },
     );
 
@@ -200,7 +208,115 @@ export class MCPVerseClient {
     this.log.info(
       `${LOG_PREFIX} Connection established, invoking onConnected callback.`,
     );
-    this.connectedListeners.forEach((listener) => listener());
+    this.connectedListeners.forEach((listener) => listener(this.reconnecting));
+    this._handleConnect(); // Call new internal connect handler
+  }
+
+  /**
+   * Handles the internal logic when a connection is established.
+   * Resets reconnection state if a reconnection was in progress.
+   */
+  private _handleConnect(): void {
+    if (this.reconnecting) {
+      this.log.info(
+        `${LOG_PREFIX} Reconnection successful. Resetting reconnection state.`,
+      );
+      this.reconnecting = false;
+      this.reconnectAttempts = 0;
+      if (this.reconnectTimeout) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
+    }
+  }
+
+  /**
+   * Handles the internal logic when a disconnection occurs.
+   * Initiates auto-reconnect if configured.
+   */
+  private _handleDisconnect(): void {
+    if (!this.autoReconnect) {
+      this.log.info(
+        `${LOG_PREFIX} Auto-reconnect is disabled. Not attempting to reconnect.`,
+      );
+      return;
+    }
+
+    if (this.reconnecting) {
+      this.log.info(
+        `${LOG_PREFIX} Reconnection already in progress. Skipping this disconnect trigger.`,
+      );
+      return;
+    }
+
+    this.log.warn(
+      `${LOG_PREFIX} Disconnected from MCPVerse. Attempting to reconnect...`,
+    );
+    this.reconnecting = true;
+    this.reconnectAttempts = 0; // Reset attempts for this new reconnection sequence
+    this._tryReconnectAsync();
+  }
+
+  /**
+   * Attempts to reconnect to the server with exponential backoff.
+   */
+  private async _tryReconnectAsync(): Promise<void> {
+    this.reconnectAttempts++;
+
+    // Max 3 actual attempts (1, 2, 3).
+    if (this.reconnectAttempts > 3) {
+      this.log.error(
+        `${LOG_PREFIX} Max reconnection attempts (3) reached. Stopping this reconnection sequence.`,
+      );
+      this.reconnecting = false; // Allow a future 'disconnected' event to start a new sequence.
+      if (this.reconnectTimeout) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
+      // Optionally, emit an event or notify the user that reconnection failed permanently for this cycle.
+      return;
+    }
+
+    try {
+      this.log.info(
+        `${LOG_PREFIX} Reconnection attempt ${this.reconnectAttempts}/3...`,
+      );
+      // We need to call the public connect method, which handles token refresh and SSE connection.
+      await this.connect();
+      // If connect() succeeds, the 'connected' event (via SSEClient) will trigger _handleConnect,
+      // which will reset 'reconnecting' to false and other cleanup.
+      this.log.info(
+        `${LOG_PREFIX} verseClient.connect() call completed. Waiting for connection confirmation.`,
+      );
+      // Note: 'reconnecting' remains true until _handleConnect confirms and resets it.
+    } catch (error: any) {
+      this.log.error(
+        `${LOG_PREFIX} Reconnection attempt ${this.reconnectAttempts}/3 failed:`, error,
+      );
+      if (this.reconnectAttempts >= 3) {
+        this.log.error(
+          `${LOG_PREFIX} All reconnection attempts failed for this sequence. Giving up.`,
+        );
+        this.reconnecting = false; // Allow new sequence later if another disconnect occurs.
+        if (this.reconnectTimeout) {
+          clearTimeout(this.reconnectTimeout);
+          this.reconnectTimeout = null;
+        }
+        // Optionally, emit an event or notify the user that reconnection failed permanently for this cycle.
+      } else {
+        // Exponential backoff: 1s, 2s for subsequent attempts after the first.
+        // Attempt 1 fails -> wait 1s for attempt 2
+        // Attempt 2 fails -> wait 2s for attempt 3
+        const delay = 1000 * Math.pow(2, this.reconnectAttempts - 1);
+        this.log.info(
+          `${LOG_PREFIX} Scheduling next reconnection attempt (${this.reconnectAttempts + 1}) in ${delay}ms.`,
+        );
+        if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout); // Clear previous before setting new
+        this.reconnectTimeout = setTimeout(() => {
+          void this._tryReconnectAsync();
+        }, delay);
+      }
+    }
   }
 
   /**
@@ -433,7 +549,7 @@ export class MCPVerseClient {
    */
   public addEventListener(
     eventName: MCPVerseClientEvent,
-    callback: () => void,
+    callback: (reconnect?: boolean) => void,
   ): void {
     if (eventName === "connected") {
       this.connectedListeners.push(callback);
