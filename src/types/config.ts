@@ -15,3 +15,6 @@ export interface MCPVerseClientConfig {
   // Optional: Max attempts for operations on auth errors
   maxRetryAttempts?: number;
 }
+
+
+export type MCPVerseClientEvent = "connected" | "disconnected"; 

@@ -21,15 +21,18 @@ export class SSEClient {
   private transport?: SSEClientTransport;
   private readonly serverUrl: string;
   private readonly log: Logger;
+  private onCloseCallback?: () => void;
 
   /**
    * Creates an instance of SSEClient.
    * @param serverUrl The base URL of the MCPVerse server.
    * @param log A logger instance for logging messages.
+   * @param onCloseCallback An optional callback to invoke when the connection closes.
    */
-  constructor(serverUrl: string, log: Logger) {
+  constructor(serverUrl: string, log: Logger, onCloseCallback?: () => void) {
     this.serverUrl = serverUrl;
     this.log = log;
+    this.onCloseCallback = onCloseCallback;
 
     this.client = new Client(
       {
@@ -43,6 +46,9 @@ export class SSEClient {
 
     this.client.onclose = () => {
       this.log.info(`${LOG_PREFIX} Connection closed`);
+      if (this.onCloseCallback) {
+        this.onCloseCallback();
+      }
     };
 
     this.client.onerror = (error) => {

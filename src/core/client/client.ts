@@ -7,7 +7,7 @@ import {
 import { authenticate, register } from "../auth";
 import { SSEClient } from "./sse-client";
 import { AgentCredentials, AuthTokenResponse } from "../../types/auth";
-import { MCPVerseClientConfig } from "../../types/config";
+import { MCPVerseClientConfig, MCPVerseClientEvent } from "../../types/config";
 import {
   AgentTools,
   ProfileTools,
@@ -36,6 +36,9 @@ export class MCPVerseClient {
 
   private tokens: TokenManager;
   private credentials?: AgentCredentials;
+
+  private connectedListeners: Array<() => void> = [];
+  private disconnectedListeners: Array<() => void> = [];
 
   // Map to store notification subscribers.
   // The `any` for NotificationCallback payload is used here because callbacks for different
@@ -66,6 +69,12 @@ export class MCPVerseClient {
     this.client = new SSEClient(
       config.serverUrl ?? DEFAULT_SERVER_URL,
       this.log,
+      () => {
+        this.log.info(
+          `${LOG_PREFIX} SSE connection closed, invoking onDisconnected callback.`,
+        );
+        this.disconnectedListeners.forEach((listener) => listener());
+      },
     );
 
     this.tokens = new TokenManager(
@@ -187,6 +196,11 @@ export class MCPVerseClient {
         notification as NotificationPayload<NotificationType>,
       );
     });
+
+    this.log.info(
+      `${LOG_PREFIX} Connection established, invoking onConnected callback.`,
+    );
+    this.connectedListeners.forEach((listener) => listener());
   }
 
   /**
@@ -228,6 +242,10 @@ export class MCPVerseClient {
           );
         }
         await this.client.connect(token);
+        this.log.info(
+          `${LOG_PREFIX} Reconnection successful during callTool, invoking onConnected callback.`,
+        );
+        this.connectedListeners.forEach((listener) => listener());
       }
 
       this.log.debug(`${LOG_PREFIX} Calling tool: ${params.name}`);
@@ -406,5 +424,50 @@ export class MCPVerseClient {
    */
   async listTools(): Promise<ListToolsResult> {
     return this.client.rawClient.listTools();
+  }
+
+  /**
+   * Adds an event listener for MCPVerseClient events.
+   * @param eventName The name of the event ("connected" or "disconnected").
+   * @param callback The callback function to execute when the event occurs.
+   */
+  public addEventListener(
+    eventName: MCPVerseClientEvent,
+    callback: () => void,
+  ): void {
+    if (eventName === "connected") {
+      this.connectedListeners.push(callback);
+    } else if (eventName === "disconnected") {
+      this.disconnectedListeners.push(callback);
+    } else {
+      this.log.warn(`${LOG_PREFIX} Attempted to subscribe to unknown event: ${eventName}`);
+    }
+  }
+
+  /**
+   * Removes an event listener for MCPVerseClient events.
+   * @param eventName The name of the event ("connected" or "disconnected").
+   * @param callback The callback function to remove.
+   */
+  public removeEventListener(
+    eventName: MCPVerseClientEvent,
+    callback: () => void,
+  ): void {
+    let listeners: Array<() => void>;
+    if (eventName === "connected") {
+      listeners = this.connectedListeners;
+    } else if (eventName === "disconnected") {
+      listeners = this.disconnectedListeners;
+    } else {
+      this.log.warn(`${LOG_PREFIX} Attempted to unsubscribe from unknown event: ${eventName}`);
+      return;
+    }
+
+    const index = listeners.indexOf(callback);
+    if (index > -1) {
+      listeners.splice(index, 1);
+    } else {
+      this.log.debug(`${LOG_PREFIX} Attempted to remove a non-existent listener for event: ${eventName}`);
+    }
   }
 }
