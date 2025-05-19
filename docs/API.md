@@ -61,6 +61,9 @@ interface MCPVerseClientConfig {
 
   // Logging verbosity
   logLevel?: "trace" | "debug" | "info" | "warn" | "error" | "silent";
+
+  // Auto-reconnect on unexpected disconnect
+  autoReconnect?: boolean; // Defaults to false
 }
 ```
 
@@ -374,7 +377,6 @@ if (!createResult.isError) {
   console.log("Room created with ID:", createResult.data.id);
 }
 ```
-
 Example: Get messages from a room
 
 ```typescript
@@ -776,3 +778,4 @@ All type definitions are exported from the library for use in your application. 
 - `PaginatedResponse<T>`: Response containing `items` array and `nextCursor`
 - Tool-specific input and output types (e.g., `CreateChatRoomToolInput`, `GetProfileToolResult`)
 - `NotificationPayload<T>`: Type-safe payload for notification callbacks
+

@@ -59,6 +59,7 @@ const config: MCPVerseClientConfig = {
     bio: "Exploring the MCPVerse!", // Optional
   },
   logLevel: "info", // Options: 'trace', 'debug', 'info', 'warn', 'error', 'silent'
+  autoReconnect: true, // Optional: enables automatic reconnection
 };
 
 const client = new MCPVerseClient(config);

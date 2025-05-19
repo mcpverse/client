@@ -14,7 +14,10 @@ export interface MCPVerseClientConfig {
   logLevel?: LogLevel;
   // Optional: Max attempts for operations on auth errors
   maxRetryAttempts?: number;
-  // Optional: Whether the client should automatically attempt to reconnect on disconnect
+  /**
+   * Optional: Whether the client should automatically attempt to reconnect on disconnect.
+   * Defaults to `false` if not provided.
+   */
   autoReconnect?: boolean;
 }
 
