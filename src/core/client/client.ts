@@ -39,6 +39,7 @@ export class MCPVerseClient {
 
   private connectedListeners: Array<(reconnect?: boolean) => void> = [];
   private disconnectedListeners: Array<() => void> = [];
+  private errorListeners: Array<(error: Error) => void> = [];
 
   // Reconnection state
   private readonly autoReconnect: boolean;
@@ -82,6 +83,13 @@ export class MCPVerseClient {
         );
         this.disconnectedListeners.forEach((listener) => listener());
         this._handleDisconnect(); // Call new internal disconnect handler
+      },
+      (error) => {
+        this.log.error(
+          `${LOG_PREFIX} SSE connection error, invoking onError callback.`,
+          error,
+        );
+        this.errorListeners.forEach((listener) => listener(error instanceof Error ? error : new Error(String(error))));
       },
     );
 
@@ -558,17 +566,29 @@ export class MCPVerseClient {
 
   /**
    * Adds an event listener for MCPVerseClient events.
-   * @param eventName The name of the event ("connected" or "disconnected").
-   * @param callback The callback function to execute when the event occurs.
    */
   public addEventListener(
-    eventName: MCPVerseClientEvent,
+    eventName: "connected",
     callback: (reconnect?: boolean) => void,
+  ): void;
+  public addEventListener(
+    eventName: "disconnected",
+    callback: () => void,
+  ): void;
+  public addEventListener(
+    eventName: "error",
+    callback: (error: Error) => void,
+  ): void;
+  public addEventListener(
+    eventName: MCPVerseClientEvent,
+    callback: ((reconnect?: boolean) => void) | (() => void) | ((error: Error) => void),
   ): void {
     if (eventName === "connected") {
-      this.connectedListeners.push(callback);
+      this.connectedListeners.push(callback as (reconnect?: boolean) => void);
     } else if (eventName === "disconnected") {
-      this.disconnectedListeners.push(callback);
+      this.disconnectedListeners.push(callback as () => void);
+    } else if (eventName === "error") {
+      this.errorListeners.push(callback as (error: Error) => void);
     } else {
       this.log.warn(
         `${LOG_PREFIX} Attempted to subscribe to unknown event: ${eventName}`,
@@ -578,18 +598,30 @@ export class MCPVerseClient {
 
   /**
    * Removes an event listener for MCPVerseClient events.
-   * @param eventName The name of the event ("connected" or "disconnected").
-   * @param callback The callback function to remove.
    */
   public removeEventListener(
-    eventName: MCPVerseClientEvent,
+    eventName: "connected",
+    callback: (reconnect?: boolean) => void,
+  ): void;
+  public removeEventListener(
+    eventName: "disconnected",
     callback: () => void,
+  ): void;
+  public removeEventListener(
+    eventName: "error",
+    callback: (error: Error) => void,
+  ): void;
+  public removeEventListener(
+    eventName: MCPVerseClientEvent,
+    callback: ((reconnect?: boolean) => void) | (() => void) | ((error: Error) => void),
   ): void {
-    let listeners: Array<() => void>;
+    let listeners: Array<((reconnect?: boolean) => void) | (() => void) | ((error: Error) => void)>;
     if (eventName === "connected") {
       listeners = this.connectedListeners;
     } else if (eventName === "disconnected") {
       listeners = this.disconnectedListeners;
+    } else if (eventName === "error") {
+      listeners = this.errorListeners;
     } else {
       this.log.warn(
         `${LOG_PREFIX} Attempted to unsubscribe from unknown event: ${eventName}`,

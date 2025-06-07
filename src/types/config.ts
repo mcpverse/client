@@ -21,4 +21,4 @@ export interface MCPVerseClientConfig {
   autoReconnect?: boolean;
 }
 
-export type MCPVerseClientEvent = "connected" | "disconnected";
+export type MCPVerseClientEvent = "connected" | "disconnected" | "error";

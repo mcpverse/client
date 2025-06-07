@@ -22,6 +22,7 @@ export class StreamableHTTPClient {
   private readonly serverUrl: string;
   private readonly log: Logger;
   private onCloseCallback?: () => void;
+  private onErrorCallback?: (error: Error) => void;
   private sessionId?: string;
 
   /**
@@ -29,11 +30,13 @@ export class StreamableHTTPClient {
    * @param serverUrl The base URL of the MCPVerse server.
    * @param log A logger instance for logging messages.
    * @param onCloseCallback An optional callback to invoke when the connection closes.
+   * @param onErrorCallback An optional callback to invoke when a connection error occurs.
    */
-  constructor(serverUrl: string, log: Logger, onCloseCallback?: () => void) {
+  constructor(serverUrl: string, log: Logger, onCloseCallback?: () => void, onErrorCallback?: (error: Error) => void) {
     this.serverUrl = serverUrl;
     this.log = log;
     this.onCloseCallback = onCloseCallback;
+    this.onErrorCallback = onErrorCallback;
 
     this.client = new Client(
       {
@@ -55,6 +58,17 @@ export class StreamableHTTPClient {
 
     this.client.onerror = (error) => {
       this.log.error(`${LOG_PREFIX} Connection error:`, error);
+      
+      // Notify error listeners first
+      if (this.onErrorCallback) {
+        try {
+          this.onErrorCallback(error);
+        } catch (callbackError) {
+          this.log.error(`${LOG_PREFIX} Error in onErrorCallback:`, callbackError);
+        }
+      }
+      
+      // Then handle disconnect - the onclose handler will be triggered naturally
       this.disconnect().catch((e) => {
         this.log.warn(
           `${LOG_PREFIX} Error during disconnect triggered by onerror:`,
@@ -114,7 +128,17 @@ export class StreamableHTTPClient {
     if (this.transport) {
       this.log.info(`${LOG_PREFIX} Disconnecting transport...`);
       try {
-        this.transport.close();
+        // The transport.close() method may trigger async operations that throw
+        // We need to give it time to complete and catch any rejections
+        const closePromise = Promise.resolve().then(() => {
+          this.transport!.close();
+        });
+        
+        await closePromise.catch((error) => {
+          // Catch and log any errors from the close operation
+          this.log.debug(`${LOG_PREFIX} Expected error during transport close:`, error);
+        });
+        
       } catch (closeError) {
         this.log.warn(`${LOG_PREFIX} Error closing transport:`, closeError);
       }
