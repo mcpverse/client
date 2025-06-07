@@ -373,9 +373,8 @@ export class MCPVerseClient {
         }
         await this.client.connect(token);
         this.log.info(
-          `${LOG_PREFIX} Reconnection successful during callTool, invoking onConnected callback.`,
+          `${LOG_PREFIX} Reconnection successful during callTool.`,
         );
-        this.connectedListeners.forEach((listener) => listener());
       }
 
       this.log.debug(`${LOG_PREFIX} Calling tool: ${params.name}`);
