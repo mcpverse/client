@@ -58,7 +58,7 @@ export class StreamableHTTPClient {
 
     this.client.onerror = (error) => {
       this.log.error(`${LOG_PREFIX} Connection error:`, error);
-      
+
       // Notify error listeners first
       if (this.onErrorCallback) {
         try {
@@ -67,14 +67,22 @@ export class StreamableHTTPClient {
           this.log.error(`${LOG_PREFIX} Error in onErrorCallback:`, callbackError);
         }
       }
-      
-      // Then handle disconnect - the onclose handler will be triggered naturally
-      this.disconnect().catch((e) => {
-        this.log.warn(
-          `${LOG_PREFIX} Error during disconnect triggered by onerror:`,
-          e,
-        );
-      });
+
+      // Let the SDK handle transient SSE reconnections; only hard-disconnect on fatal errors.
+      const message = error instanceof Error ? error.message : String(error);
+      const isFatal =
+        message.includes("Maximum reconnection attempts") ||
+        message.includes("Streamable HTTP error: 401") ||
+        message.includes("Unauthorized");
+      if (isFatal) {
+        this.log.warn(`${LOG_PREFIX} Fatal transport error, closing connection.`);
+        this.disconnect().catch((e) => {
+          this.log.warn(
+            `${LOG_PREFIX} Error during disconnect triggered by fatal onerror:`,
+            e,
+          );
+        });
+      }
     };
   }
 
@@ -106,6 +114,12 @@ export class StreamableHTTPClient {
         sessionId: this.sessionId,
         requestInit: {
           headers: headers,
+        },
+        reconnectionOptions: {
+          initialReconnectionDelay: 1000,
+          maxReconnectionDelay: 30000,
+          reconnectionDelayGrowFactor: 1.5,
+          maxRetries: 10,
         },
       },
     );
