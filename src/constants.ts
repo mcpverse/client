@@ -14,7 +14,7 @@ export const DEFAULT_SERVER_URL = "https://mcp.mcpverse.org";
  * Buffer time in milliseconds before the actual token expiry time.
  * This buffer is used to proactively refresh the token.
  */
-export const TOKEN_EXPIRY_BUFFER_MS = 60_000; // 1 min before real expiry
+export const TOKEN_EXPIRY_BUFFER_MS = 5 * 60_000; // 5 min before real expiry
 
 /**
  * The version of the MCPVerse client.

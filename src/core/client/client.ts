@@ -47,6 +47,12 @@ export class MCPVerseClient {
   private reconnectAttempts: number = 0;
   private reconnectTimeout: NodeJS.Timeout | null = null;
 
+  // Token refresh scheduling
+  private tokenRefreshTimeout: NodeJS.Timeout | null = null;
+  private tokenRefreshInFlight: boolean = false;
+  private suppressDisconnectEvents: boolean = false;
+  private suppressedDisconnectPending: boolean = false;
+
   // Map to store notification subscribers.
   // The `any` for NotificationCallback payload is used here because callbacks for different
   // NotificationType will have different payload types. Type safety is enforced
@@ -81,6 +87,13 @@ export class MCPVerseClient {
         this.log.info(
           `${LOG_PREFIX} SSE connection closed, invoking onDisconnected callback.`,
         );
+        if (this.suppressDisconnectEvents) {
+          this.log.debug(
+            `${LOG_PREFIX} Suppressing disconnect handling due to intentional reconnect.`,
+          );
+          this.suppressedDisconnectPending = true;
+          return;
+        }
         this.disconnectedListeners.forEach((listener) => listener());
         this._handleDisconnect(); // Call new internal disconnect handler
       },
@@ -148,6 +161,7 @@ export class MCPVerseClient {
    */
   async connect(): Promise<void> {
     this.log.info(`${LOG_PREFIX} Initializing connection...`);
+    this._clearTokenRefreshTimer();
 
     if (!this.credentials && this.config.credentials) {
       this.log.debug(
@@ -218,6 +232,7 @@ export class MCPVerseClient {
     );
     this.connectedListeners.forEach((listener) => listener(this.reconnecting));
     this._handleConnect(); // Call new internal connect handler
+    this._scheduleTokenRefresh();
   }
 
   /**
@@ -238,11 +253,105 @@ export class MCPVerseClient {
     }
   }
 
+  private _clearTokenRefreshTimer(): void {
+    if (this.tokenRefreshTimeout) {
+      clearTimeout(this.tokenRefreshTimeout);
+      this.tokenRefreshTimeout = null;
+    }
+  }
+
+  private _scheduleTokenRefresh(delayOverrideMs?: number): void {
+    this._clearTokenRefreshTimer();
+
+    if (!this.client.isConnected) {
+      this.log.debug(
+        `${LOG_PREFIX} Skipping token refresh scheduling; client not connected.`,
+      );
+      return;
+    }
+
+    const delayMs =
+      typeof delayOverrideMs === "number"
+        ? delayOverrideMs
+        : this.tokens.getRefreshDelayMs();
+    if (delayMs === null) {
+      this.log.debug(
+        `${LOG_PREFIX} Skipping token refresh scheduling; token metadata unavailable.`,
+      );
+      return;
+    }
+
+    const refreshAt = this.tokens.getRefreshAt();
+    const actualExpiryAt = this.tokens.getActualExpiryAt();
+    const scheduledAt = new Date(Date.now() + delayMs).toISOString();
+    this.log.debug(
+      `${LOG_PREFIX} Scheduling token refresh in ${delayMs}ms (scheduled ${scheduledAt}, refresh at ${refreshAt ? new Date(refreshAt).toISOString() : "unknown"}, actual expiry ${actualExpiryAt ? new Date(actualExpiryAt).toISOString() : "unknown"}).`,
+    );
+
+    this.tokenRefreshTimeout = setTimeout(() => {
+      void this._refreshTokenAndReconnect("scheduled");
+    }, delayMs);
+  }
+
+  private async _refreshTokenAndReconnect(reason: string): Promise<void> {
+    if (this.tokenRefreshInFlight) {
+      this.log.debug(
+        `${LOG_PREFIX} Token refresh already in flight; skipping ${reason} refresh.`,
+      );
+      return;
+    }
+
+    this.tokenRefreshInFlight = true;
+    this._clearTokenRefreshTimer();
+    this.suppressedDisconnectPending = false;
+    let refreshFailed = false;
+
+    try {
+      this.log.info(`${LOG_PREFIX} Refreshing token (${reason})...`);
+      const newToken = await this.tokens.refresh();
+
+      if (this.client.isConnected) {
+        this.suppressDisconnectEvents = true;
+        await this.client.connect(newToken.access_token);
+        this.log.info(`${LOG_PREFIX} Reconnected with refreshed token.`);
+      } else {
+        this.log.debug(
+          `${LOG_PREFIX} Token refreshed (${reason}) while disconnected; skipping reconnect.`,
+        );
+      }
+    } catch (error: any) {
+      refreshFailed = true;
+      this.log.error(`${LOG_PREFIX} Token refresh failed (${reason}):`, error);
+    } finally {
+      this.suppressDisconnectEvents = false;
+      this.tokenRefreshInFlight = false;
+
+      if (refreshFailed) {
+        if (this.client.isConnected) {
+          // Retry soon if we're still connected but refresh failed.
+          this._scheduleTokenRefresh(30_000);
+        } else if (this.suppressedDisconnectPending) {
+          // We suppressed disconnect events during refresh; emit them now if still disconnected.
+          this.suppressedDisconnectPending = false;
+          this.disconnectedListeners.forEach((listener) => listener());
+          this._handleDisconnect();
+        }
+        return;
+      }
+
+      this.suppressedDisconnectPending = false;
+      if (this.client.isConnected) {
+        this._scheduleTokenRefresh();
+      }
+    }
+  }
+
   /**
    * Handles the internal logic when a disconnection occurs.
    * Initiates auto-reconnect if configured.
    */
   private _handleDisconnect(): void {
+    this._clearTokenRefreshTimer();
     this.notificationSubscribers.clear(); // Clear notification subscriptions
     this.log.info(
       `${LOG_PREFIX} Cleared all notification subscriptions due to disconnect.`,
@@ -339,6 +448,7 @@ export class MCPVerseClient {
   async disconnect() {
     this.log.debug(`${LOG_PREFIX} Initiating disconnect`);
     await this.client.disconnect();
+    this._clearTokenRefreshTimer();
     this.log.info(`${LOG_PREFIX} Disconnected.`);
   }
 
@@ -372,6 +482,7 @@ export class MCPVerseClient {
           );
         }
         await this.client.connect(token);
+        this._scheduleTokenRefresh();
         this.log.info(
           `${LOG_PREFIX} Reconnection successful during callTool.`,
         );

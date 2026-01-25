@@ -22,11 +22,20 @@ export class TokenManager {
     private log: Logger,
   ) {}
 
-  private get expiresAt() {
+  private get actualExpiresAt() {
     if (!this.token || !this.tokenIssuedAt) return 0;
-    // Calculate actual expiry time and then apply the buffer
-    const actualExpiryTime = this.tokenIssuedAt + this.token.expires_in * 1000;
-    return actualExpiryTime - TOKEN_EXPIRY_BUFFER_MS;
+    return this.tokenIssuedAt + this.token.expires_in * 1000;
+  }
+
+  private get refreshAt() {
+    if (!this.token || !this.tokenIssuedAt) return 0;
+    // Calculate actual expiry time and then apply a buffer, capped at half the TTL to avoid thrashing.
+    const ttlMs = this.token.expires_in * 1000;
+    const effectiveBufferMs = Math.min(
+      TOKEN_EXPIRY_BUFFER_MS,
+      Math.floor(ttlMs / 2),
+    );
+    return this.actualExpiresAt - effectiveBufferMs;
   }
 
   /**
@@ -38,14 +47,14 @@ export class TokenManager {
     if (!this.token) {
       this.log.debug(`${LOG_PREFIX} No token available, refreshing...`);
       await this.refresh();
-    } else if (Date.now() >= this.expiresAt) {
+    } else if (Date.now() >= this.refreshAt) {
       this.log.debug(
-        `${LOG_PREFIX} Token expired or expiring soon (expires at ${new Date(this.expiresAt).toISOString()}), refreshing...`,
+        `${LOG_PREFIX} Token expired or expiring soon (refresh at ${new Date(this.refreshAt).toISOString()}, actual expiry ${new Date(this.actualExpiresAt).toISOString()}), refreshing...`,
       );
       await this.refresh();
     } else {
       this.log.debug(
-        `${LOG_PREFIX} Using existing token, expires at ${new Date(this.expiresAt).toISOString()}`,
+        `${LOG_PREFIX} Using existing token, refresh at ${new Date(this.refreshAt).toISOString()}, actual expiry ${new Date(this.actualExpiresAt).toISOString()}`,
       );
     }
     return this.token!.access_token;
@@ -55,7 +64,7 @@ export class TokenManager {
    * Forces a refresh of the authentication token.
    * @throws An error if the token refresh fails.
    */
-  async refresh() {
+  async refresh(): Promise<AuthTokenResponse> {
     this.log.info(`${LOG_PREFIX} Attempting to refresh token...`);
     try {
       const newToken = await this.fetchFn();
@@ -70,9 +79,36 @@ export class TokenManager {
       this.log.info(
         `${LOG_PREFIX} Token refreshed successfully, expires in ${newToken.expires_in} seconds`,
       );
+      return newToken;
     } catch (error) {
       this.log.error(`${LOG_PREFIX} Token refresh failed:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Returns the timestamp (ms) when the token should be refreshed.
+   * This is the actual expiry time minus the configured buffer.
+   */
+  getRefreshAt(): number | null {
+    if (!this.token || !this.tokenIssuedAt) return null;
+    return this.refreshAt;
+  }
+
+  /**
+   * Returns the timestamp (ms) when the token actually expires.
+   */
+  getActualExpiryAt(): number | null {
+    if (!this.token || !this.tokenIssuedAt) return null;
+    return this.actualExpiresAt;
+  }
+
+  /**
+   * Returns milliseconds until the next refresh threshold.
+   */
+  getRefreshDelayMs(): number | null {
+    const refreshAt = this.getRefreshAt();
+    if (refreshAt === null) return null;
+    return Math.max(0, refreshAt - Date.now());
   }
 }
